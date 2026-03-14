@@ -157,10 +157,8 @@ def admin_required(current_user = Depends(get_current_user)):
     if not current_user.is_staff:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="admin Only"
-
-        )
-        return current_user
+            detail="Admin Only")
+    return current_user
 
 
 

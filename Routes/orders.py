@@ -40,7 +40,8 @@ def create_order(db: Session= Depends(get_db), current_user: int = Depends(auth.
     db.add(new_order)
     db.commit()
     db.refresh(new_order)
-
+    
+    total_price = 0
     for cart_item in cart.items:
         order_item= model.OrderItem(
             order_id = new_order.id, 
@@ -48,9 +49,11 @@ def create_order(db: Session= Depends(get_db), current_user: int = Depends(auth.
             quantity = cart_item.quantity,
             price = cart_item.product.price
         )
+        total_price += cart_item.quantity * cart_item.product.price
         db.add(order_item)
 
-    
+    new_order.total_price = total_price
+
     db.query(model.CartItem).filter(
         model.CartItem.cart_id == cart.id
     ).delete()

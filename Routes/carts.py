@@ -64,10 +64,12 @@ def create_cart(db: Session = Depends(get_db), current_user: model.User = Depend
 #=============================================================
 
 @router.post("/items/", response_model=schemas.Cart)
-def add_item_to_cart(cart_id: int, item: schemas.CartItemCreate, db: Session = Depends(get_db), current_user: int= Depends(auth.get_current_user)):
+def add_item_to_cart(item: schemas.CartItemCreate, db: Session = Depends(get_db), current_user: int= Depends(auth.get_current_user)):
+    cart = db.query(model.Cart).filter(
+        model.Cart.user_id == current_user.id).first()
     
     try:
-        print(f"--- İŞLEM BAŞLIYOR: Sepet ID: {cart_id}, Ürün ID: {item.product_id} ---")
+        print(f"--- İŞLEM BAŞLIYOR: Sepet ID: {cart.id}, Ürün ID: {item.product_id} ---")
 
         # 1. Sepet Kontrolü
         db_cart = db.query(model.Cart).filter(
@@ -223,11 +225,19 @@ def uptade_cart_item(cart_id: int, product_id: int,item_data: schemas.CartItemUp
 @router.delete("/items/{product_id}")
 def delete_item_from_cart(cart_id: int, product_id: int, db: Session = Depends(get_db), current_user: int= Depends(auth.get_current_user)):
         print(f"Product {product_id} is being deleted from the cart {cart_id}.")
-
+        
+        cart = db.query(model.Cart).filter(
+            model.Cart.user_id == current_user.id
+        ).first()
+        
         db_item = db.query(model.CartItem).filter(
-             model.Cart.user_id == current_user.id,
+            model.CartItem.cart_id == cart.id,
             model.CartItem.product_id == product_id
         ).first()
+
+       
+        
+        
 
         if not db_item:
             raise HTTPException(status_code=404, detail="This product is not in your cart.")

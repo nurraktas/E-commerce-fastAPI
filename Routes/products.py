@@ -50,7 +50,7 @@ def create_product(product: schemas.ProductCreate, db: Session = Depends(get_db)
 #URUN BILGILERINI GUNCELLEME
 #============================================================
 @router.put("/{product_id}", response_model= schemas.Product)
-def update_product(product_id: int, update_product: schemas.ProductCreate, db: Session= Depends(get_db), current_user: int= Depends(auth.get_current_user)):
+def update_product(product_id: int, update_product: schemas.ProductCreate, db: Session= Depends(get_db), current_user: int= Depends(auth.admin_required)):
    print(f"Product updated: Id {product_id}")
 
    db_product = db.query(model.Product).filter(model.Product.id == product_id).first()
